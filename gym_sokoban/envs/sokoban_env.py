@@ -5,6 +5,7 @@ from gymnasium.spaces import Box
 from .room_utils import generate_room
 from .render_utils import room_to_rgb, room_to_tiny_world_rgb
 import numpy as np
+import pygame
 
 
 class SokobanEnv(gym.Env):
@@ -17,6 +18,7 @@ class SokobanEnv(gym.Env):
                  num_gen_steps=None,
                  render_mode=None,
                  render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw'],
+                 render_fps = 10,
                  reset=True):
 
         # General Configuration
@@ -28,6 +30,8 @@ class SokobanEnv(gym.Env):
 
         self.num_boxes = num_boxes
         self.boxes_on_target = 0
+
+        self.metadata['render_fps'] = render_fps
 
         # Penalties and Rewards
         self.penalty_for_step = -0.1
@@ -44,6 +48,7 @@ class SokobanEnv(gym.Env):
         self.action_space = Discrete(len(ACTION_LOOKUP))
         screen_height, screen_width = (dim_room[0] * 16, dim_room[1] * 16)
         self.observation_space = Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+        print(self.observation_space)
         
         if reset:
             # Initialize Room
@@ -83,7 +88,9 @@ class SokobanEnv(gym.Env):
             truncated = True
 
         # Convert the observation to RGB frame
-        observation = self.render()
+
+        observation = self.get_image(self.render_mode, 1)
+        self.render()
 
         info = {
             "action.name": ACTION_LOOKUP[action],
@@ -222,13 +229,13 @@ class SokobanEnv(gym.Env):
         self.reward_last = 0
         self.boxes_on_target = 0
 
-        starting_observation = self.render()
+        starting_observation = self.get_image(self.render_mode, scale=1)
         return starting_observation, {}
     
     def render(self, close=False, scale=1):
         if close:
             if self.viewer is not None:
-                self.viewer.close()
+                pygame.quit()
                 self.viewer = None
             return
 
@@ -245,27 +252,27 @@ class SokobanEnv(gym.Env):
             return img  # Return the raw image array
 
         elif 'human' in mode:
-            import pyglet
-            from pyglet import image
-
-            # from gymnasium.envs.classic_control import rendering
-            # if self.viewer is None:
-            #     self.viewer = rendering.SimpleImageViewer()
-            # self.viewer.imshow(img)
-            # return self.viewer.isopen  # Return whether the viewer is open
             if self.viewer is None:
-            # Create a pyglet window
-                self.viewer = pyglet.window.Window(width=img.shape[1], height=img.shape[0])
+                pygame.init()
+                self.viewer = pygame.display.set_mode((img.shape[1], img.shape[0]))
+                pygame.display.set_caption('Sokoban')
+                self.clock = pygame.time.Clock()
 
-                # Convert the NumPy image to pyglet's image format
-                img_pyglet = image.ImageData(img.shape[1], img.shape[0], 'RGB', img.tobytes())
-                
-                # Clear the window and display the image
-                self.viewer.clear()
-                img_pyglet.blit(0, 0)
-                self.viewer.flip()
+            surface = pygame.surfarray.make_surface(np.transpose(img, (1, 0, 2)))
 
-            return self.viewer.is_open
+            self.viewer.blit(surface, (0, 0))
+            pygame.display.flip()
+
+            self.clock.tick(self.metadata['render_fps'])
+
+            # Handle quit events
+            is_open = True
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    self.viewer = None
+                    is_open = False
+
 
         elif 'raw' in mode:
             arr_walls = (self.room_fixed == 0).view(np.int8)
@@ -289,7 +296,8 @@ class SokobanEnv(gym.Env):
 
     def close(self):
         if self.viewer is not None:
-            self.viewer.close()
+            pygame.quit()
+            self.viewer = None
 
     def set_maxsteps(self, num_steps):
         self.max_steps = num_steps
