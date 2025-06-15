@@ -11,15 +11,17 @@ import pygame
 class SokobanEnv(gym.Env):
   
 
-    def __init__(self,
-                 dim_room=(10, 10),
-                 max_steps=120,
-                 num_boxes=4,
-                 num_gen_steps=None,
-                 render_mode=None,
-                 render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw'],
-                 render_fps = 10,
-                 reset=True):
+    def __init__(
+        self,
+        dim_room=(10, 10),
+        max_steps=120,
+        num_boxes=4,
+        num_gen_steps=None,
+        render_mode=None,
+        render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw'],
+        render_fps = 10,
+        reset=True
+    ):
 
         # General Configuration
         self.dim_room = dim_room
