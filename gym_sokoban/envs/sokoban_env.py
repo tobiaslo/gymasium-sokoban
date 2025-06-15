@@ -248,10 +248,8 @@ class SokobanEnv(gym.Env):
         # Get the image based on the render mode
         img = self.get_image(mode, scale)
 
-        if 'rgb_array' in mode:
-            return img  # Return the raw image array
 
-        elif 'human' in mode:
+        if 'human' in mode:
             if self.viewer is None:
                 pygame.init()
                 self.viewer = pygame.display.set_mode((img.shape[1], img.shape[0]))

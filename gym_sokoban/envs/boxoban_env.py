@@ -14,15 +14,20 @@ class BoxobanEnv(SokobanEnv):
     dim_room=(10, 10)
 
     def __init__(self,
-             max_steps=120,
-             difficulty='unfiltered', split='train'):
+        max_steps=120,
+        difficulty='unfiltered', 
+        split='train'
+    ):
+        
         self.difficulty = difficulty
         self.split = split
         self.verbose = False
         super(BoxobanEnv, self).__init__(self.dim_room, max_steps, self.num_boxes, None)
-        
 
-    def reset(self):
+
+        self.download_levels()
+
+    def download_levels(self):
         self.cache_path = '.sokoban_cache'
         self.train_data_dir = os.path.join(self.cache_path, 'boxoban-levels-master', self.difficulty, self.split)
 
@@ -48,6 +53,9 @@ class BoxobanEnv(SokobanEnv):
             zip_ref = zipfile.ZipFile(path_to_zip_file, 'r')
             zip_ref.extractall(self.cache_path)
             zip_ref.close()
+        
+
+    def reset(self):
         
         self.select_room()
 
