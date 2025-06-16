@@ -7,7 +7,7 @@ import time
 # This import statement registers all Sokoban environments
 # provided by this package
 env_name = 'Boxoban-Train-v0'
-env = gym.make(env_name, render_mode='human')
+env = gym.make(env_name, render_mode='rgb_array')
 
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))
@@ -16,7 +16,7 @@ for i_episode in range(1):#20
     observation, info = env.reset(seed=None, options= None)
 
     for t in range(100):#100
-        env.render()
+        # env.render()
         action = env.action_space.sample()
 
         # Sleep makes the actions visible for users
