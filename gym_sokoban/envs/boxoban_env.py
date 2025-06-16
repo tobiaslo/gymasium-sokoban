@@ -2,7 +2,7 @@ from .sokoban_env import SokobanEnv
 from .render_utils import room_to_rgb
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isdir, isfile, join
 import requests
 import zipfile
 from tqdm import tqdm
@@ -55,7 +55,39 @@ class BoxobanEnv(SokobanEnv):
             zip_ref = zipfile.ZipFile(path_to_zip_file, 'r')
             zip_ref.extractall(self.cache_path)
             zip_ref.close()
-        
+
+            # Normalize the header lines in the files to contain a constant number of characters
+            files = []
+            for difficulty in listdir(os.path.join(self.cache_path, 'boxoban-levels-master')):
+                if isdir(join(self.cache_path, 'boxoban-levels-master', difficulty)):
+                    for split in listdir(join(self.cache_path, 'boxoban-levels-master', difficulty)):
+                        path = join(self.cache_path, 'boxoban-levels-master', difficulty, split)
+                        if isdir(path):
+                            for f in listdir(path):
+                                files.append(join(path, f))
+                        else:
+                            files.append(path)
+                        
+            for file in files:
+                print(file)
+                if isfile(file):
+                    f_old = open(file, 'r')
+                    f_new = open(file + '.temp', 'w')
+
+                    counter = 0
+
+                    for line in f_old:
+                        if ';' in line:
+                            f_new.write(f'; {counter:04}\n')
+                            counter += 1
+                        else:
+                            f_new.write(line)
+
+                    f_old.close()
+                    f_new.close()
+
+                    os.remove(file)
+                    os.rename(file + '.temp', file)        
 
     def reset(self, seed=None, options=None):
 
@@ -93,6 +125,8 @@ class BoxobanEnv(SokobanEnv):
 
         if self.verbose:
             print('Selected Level from File "{}"'.format(source_file))
+
+        print(selected_map)
 
         self.room_fixed, self.room_state, self.box_mapping = self.generate_room(selected_map)
 
