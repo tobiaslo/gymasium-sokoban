@@ -103,30 +103,36 @@ class BoxobanEnv(SokobanEnv):
 
         return starting_observation, {}
 
-    def select_room(self):
+    def select_room(self, file_idx=None, board_idx=None):
         
         generated_files = [f for f in listdir(self.train_data_dir) if isfile(join(self.train_data_dir, f))]
-        source_file = join(self.train_data_dir, random.choice(generated_files))
+        generated_files.sort()
 
-        maps = []
-        current_map = []
+        if file_idx is None:
+            source_file = join(self.train_data_dir, random.choice(generated_files))
+        else:
+            source_file = join(self.train_data_dir, generated_files[file_idx])
+            
+
+        board_offset = 110
+        header_offset = 7
+        space_offset = 1
+        total_offset = board_offset + header_offset + space_offset
+    
+        size = os.path.getsize(source_file)
+        num_states = int(size / total_offset)
+
+        if board_idx is None:
+            idx = random.randint(0, num_states - 1)
+        else:
+            idx = board_idx
         
         with open(source_file, 'r') as sf:
-            for line in sf.readlines():
-                if ';' in line and current_map:
-                    maps.append(current_map)
-                    current_map = []
-                if '#' == line[0]:
-                    current_map.append(line.strip())
-        
-        maps.append(current_map)
-
-        selected_map = random.choice(maps)
+            sf.seek(idx * total_offset + header_offset)
+            selected_map = [ sf.readline().strip() for _ in range(10) ]
 
         if self.verbose:
             print('Selected Level from File "{}"'.format(source_file))
-
-        print(selected_map)
 
         self.room_fixed, self.room_state, self.box_mapping = self.generate_room(selected_map)
 
