@@ -6,7 +6,6 @@ from os.path import isdir, isfile, join
 import requests
 import zipfile
 from tqdm import tqdm
-import random
 import numpy as np
 
 class BoxobanEnv(SokobanEnv):
@@ -26,6 +25,7 @@ class BoxobanEnv(SokobanEnv):
         self.verbose = False
         self.download_levels()
         super(BoxobanEnv, self).__init__(self.dim_room, max_steps, self.num_boxes, render_mode=render_mode)
+
 
 
 
@@ -89,11 +89,18 @@ class BoxobanEnv(SokobanEnv):
                     os.remove(file)
                     os.rename(file + '.temp', file)        
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options: dict=None):
 
         self.seed(seed)
-        
-        self.select_room()
+
+        if options is not None:
+            file_idx = options.get('file_idx', None)
+            board_idx = options.get('board_idx', None)
+        else:
+            file_idx = None
+            board_idx = None
+
+        self.select_room(file_idx, board_idx)
 
         self.num_env_steps = 0
         self.reward_last = 0
@@ -109,7 +116,7 @@ class BoxobanEnv(SokobanEnv):
         generated_files.sort()
 
         if file_idx is None:
-            source_file = join(self.train_data_dir, random.choice(generated_files))
+            source_file = join(self.train_data_dir, np.random.choice(generated_files))
         else:
             source_file = join(self.train_data_dir, generated_files[file_idx])
             
@@ -123,7 +130,7 @@ class BoxobanEnv(SokobanEnv):
         num_states = int(size / total_offset)
 
         if board_idx is None:
-            idx = random.randint(0, num_states - 1)
+            idx = np.random.randint(0, num_states - 1)
         else:
             idx = board_idx
         

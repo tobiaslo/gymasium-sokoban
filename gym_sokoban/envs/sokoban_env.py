@@ -6,6 +6,7 @@ from .room_utils import generate_room
 from .render_utils import room_to_rgb, room_to_tiny_world_rgb
 import numpy as np
 import pygame
+import time
 
 
 class SokobanEnv(gym.Env):
@@ -55,11 +56,14 @@ class SokobanEnv(gym.Env):
             # Initialize Room
             _ = self.reset()
 
-    def seed(self, seed=None):
+    def seed(self, seed=int(time.time())):
         self.np_random, seed = seeding.np_random(seed)
+        # np.random.seed(seed)
         return [seed]
 
     def step(self, action, observation_mode='rgb_array'):
+        # if isinstance(action, np.ndarray):
+        #     action = action.astype(np.int64)
         assert action in ACTION_LOOKUP
         assert observation_mode in ['rgb_array', 'tiny_rgb_array', 'raw']
 

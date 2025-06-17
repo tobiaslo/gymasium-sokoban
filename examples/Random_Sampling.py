@@ -9,17 +9,18 @@ from gymnasium.wrappers import RecordVideo
 # This import statement registers all Sokoban environments
 # provided by this package
 env_name = 'Boxoban-v0'
-env = gym.make(env_name, render_mode='rgb_array')
-env = RecordVideo(env, video_folder='.')
+env = gym.make(env_name, render_mode='human')
+# env = RecordVideo(env, video_folder='.')
 
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))
 
+
 for i_episode in range(1):
-    observation, info = env.reset(seed=None, options= None)
+    observation, info = env.reset(seed=None, options={'file_idx': 0, 'board_idx': 0})
 
     for t in range(10):
-        # env.render()
+        env.render()
         action = env.action_space.sample()
 
         # Sleep makes the actions visible for users
