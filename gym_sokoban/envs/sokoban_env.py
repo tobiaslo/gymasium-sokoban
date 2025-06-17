@@ -280,6 +280,8 @@ class SokobanEnv(gym.Env):
             arr_player = (self.room_state == 5).view(np.int8)
 
             return arr_walls, arr_goals, arr_boxes, arr_player  # Return raw state info
+        elif 'rgb_array' in mode:
+            return img
 
         else:
             raise ValueError(f"Unsupported render mode: {mode}")  # Invalid mode, raise error
