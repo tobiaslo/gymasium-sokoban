@@ -320,10 +320,6 @@ ACTION_LOOKUP = {
     2: 'push down',
     3: 'push left',
     4: 'push right',
-    5: 'move up',
-    6: 'move down',
-    7: 'move left',
-    8: 'move right',
 }
 
 # Moves are mapped to coordinate changes as follows
