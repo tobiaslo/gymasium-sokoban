@@ -17,7 +17,7 @@ print("Created environment: {}".format(env_name))
 
 
 for i_episode in range(1):
-    observation, info = env.reset(seed=None, options={'file_idx': 0, 'board_idx': 1})
+    observation, info = env.reset(seed=None, options={'file_idx': 0, 'board_idx': 7})
 
     for t in range(300):
         env.render()
