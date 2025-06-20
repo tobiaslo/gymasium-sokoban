@@ -38,6 +38,7 @@ class SokobanEnv(gym.Env):
 
         # Penalties and Rewards
         self.penalty_for_step = -0.1
+        self.penalty_for_not_moving = -0.15
         self.penalty_box_off_target = -1
         self.reward_box_on_target = 1
         self.reward_finished = 10
@@ -84,7 +85,7 @@ class SokobanEnv(gym.Env):
         else:
             moved_player = self._move(action)
 
-        self._calc_reward()
+        self._calc_reward(moved_player)
         
         done = self._check_if_done()
         # Check if the episode should be truncated (e.g., exceeded max steps)
@@ -172,7 +173,7 @@ class SokobanEnv(gym.Env):
 
         return False
 
-    def _calc_reward(self):
+    def _calc_reward(self, moved_player):
         """
         Calculate Reward Based on
         :return:
@@ -180,6 +181,10 @@ class SokobanEnv(gym.Env):
         # Every step a small penalty is given, This ensures
         # that short solutions have a higher reward.
         self.reward_last = self.penalty_for_step
+
+        if not moved_player:
+            self.reward_last = self.penalty_for_not_moving
+            return
 
         # count boxes off or on the target
         empty_targets = self.room_state == 2
