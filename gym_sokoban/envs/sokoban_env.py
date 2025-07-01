@@ -1,3 +1,4 @@
+from os import terminal_size
 import gymnasium as gym
 from gymnasium.utils import seeding
 from gymnasium.spaces import Discrete
@@ -87,11 +88,6 @@ class SokobanEnv(gym.Env):
 
         self._calc_reward(moved_player)
         
-        done = self._check_if_done()
-        # Check if the episode should be truncated (e.g., exceeded max steps)
-        truncated = False
-        if self.num_env_steps >= self.max_steps:
-            truncated = True
 
         # Convert the observation to RGB frame
 
@@ -103,11 +99,12 @@ class SokobanEnv(gym.Env):
             "action.moved_player": moved_player,
             "action.moved_box": moved_box,
         }
-        if done:
-            info["maxsteps_used"] = self._check_if_maxsteps()
-            info["all_boxes_on_target"] = self._check_if_all_boxes_on_target()
 
-        return observation, self.reward_last, done, truncated, info
+        # Check if the episode is done
+        terminated = self._check_if_all_boxes_on_target()
+        truncated = self._check_if_maxsteps()
+
+        return observation, self.reward_last, terminated, truncated, info
 
     def _push(self, action):
         """
