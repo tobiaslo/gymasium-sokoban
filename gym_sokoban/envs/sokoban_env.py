@@ -8,6 +8,7 @@ from .render_utils import room_to_rgb, room_to_tiny_world_rgb
 import numpy as np
 import pygame
 import time
+import random
 
 
 class SokobanEnv(gym.Env):
@@ -59,8 +60,9 @@ class SokobanEnv(gym.Env):
             _ = self.reset()
 
     def seed(self, seed=int(time.time())):
+        np.random.seed(seed)
+        random.seed(seed)
         self.np_random, seed = seeding.np_random(seed)
-        # np.random.seed(seed)
         return [seed]
 
     def step(self, action, observation_mode='rgb_array'):
@@ -219,6 +221,8 @@ class SokobanEnv(gym.Env):
         return (self.max_steps == self.num_env_steps)
 
     def reset(self, second_player=False, render_mode='rgb_array', seed=None, options= None):
+        if seed is not None:
+            self.seed(seed)
         try:
             self.room_fixed, self.room_state, self.box_mapping = generate_room(
                 dim=self.dim_room,
