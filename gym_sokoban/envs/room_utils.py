@@ -1,9 +1,17 @@
-import random
 import numpy as np
 import marshal
 
 
-def generate_room(dim=(13, 13), p_change_directions=0.35, num_steps=25, num_boxes=3, tries=4, second_player=False):
+def generate_room(
+    dim=(13, 13), 
+    p_change_directions=0.35, 
+    num_steps=25, 
+    num_boxes=3, 
+    tries=4, 
+    second_player=False, 
+    np_random=None
+):
+
     """
     Generates a Sokoban room, represented by an integer matrix. The elements are encoded as follows:
     wall = 0
@@ -24,7 +32,12 @@ def generate_room(dim=(13, 13), p_change_directions=0.35, num_steps=25, num_boxe
     # Some times rooms with a score == 0 are the only possibility.
     # In these case, we try another model.
     for t in range(tries):
-        room = room_topology_generation(dim, p_change_directions, num_steps)
+        room = room_topology_generation(
+            np_random,
+            dim, 
+            p_change_directions, 
+            num_steps
+        )
         room = place_boxes_and_player(room, num_boxes=num_boxes, second_player=second_player)
 
         # Room fixed represents all not movable parts of the room
@@ -47,7 +60,7 @@ def generate_room(dim=(13, 13), p_change_directions=0.35, num_steps=25, num_boxe
     return room_structure, room_state, box_mapping
 
 
-def room_topology_generation(dim=(10, 10), p_change_directions=0.35, num_steps=15):
+def room_topology_generation(np_random, dim=(10, 10), p_change_directions=0.35, num_steps=15):
     """
     Generate a room topology, which consits of empty floors and walls.
 
@@ -91,12 +104,12 @@ def room_topology_generation(dim=(10, 10), p_change_directions=0.35, num_steps=1
 
     # Possible directions during the walk
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-    direction = random.sample(directions, 1)[0]
+    direction = np_random.choice(directions)
 
     # Starting position of random walk
     position = np.array([
-        random.randint(1, dim_x - 1),
-        random.randint(1, dim_y - 1)]
+        np_random.integers(1, dim_x - 1),
+        np_random.integers(1, dim_y - 1)]
     )
 
     level = np.zeros(dim, dtype=int)
@@ -104,8 +117,8 @@ def room_topology_generation(dim=(10, 10), p_change_directions=0.35, num_steps=1
     for s in range(num_steps):
 
         # Change direction randomly
-        if random.random() < p_change_directions:
-            direction = random.sample(directions, 1)[0]
+        if np_random.random() < p_change_directions:
+            direction = np_random.choice(directions)
 
         # Update position
         position = position + direction
@@ -113,7 +126,7 @@ def room_topology_generation(dim=(10, 10), p_change_directions=0.35, num_steps=1
         position[1] = max(min(position[1], dim_y - 2), 1)
 
         # Apply mask
-        mask = random.sample(masks, 1)[0]
+        mask = np_random.choice(masks)
         mask_start = position - 1
         level[mask_start[0]:mask_start[0] + 3, mask_start[1]:mask_start[1] + 3] += mask
 
@@ -124,7 +137,7 @@ def room_topology_generation(dim=(10, 10), p_change_directions=0.35, num_steps=1
     return level
 
 
-def place_boxes_and_player(room, num_boxes, second_player):
+def place_boxes_and_player(np_random, room, num_boxes, second_player):
     """
     Places the player and the boxes into the floors in a room.
 
@@ -145,12 +158,12 @@ def place_boxes_and_player(room, num_boxes, second_player):
         )
 
     # Place player(s)
-    ind = np.random.randint(num_possible_positions)
+    ind = np_random.integers(0, num_possible_positions)
     player_position = possible_positions[0][ind], possible_positions[1][ind]
     room[player_position] = 5
 
     if second_player:
-        ind = np.random.randint(num_possible_positions)
+        ind = np_random.integers(0, num_possible_positions)
         player_position = possible_positions[0][ind], possible_positions[1][ind]
         room[player_position] = 5
 
@@ -159,7 +172,7 @@ def place_boxes_and_player(room, num_boxes, second_player):
         possible_positions = np.where(room == 1)
         num_possible_positions = possible_positions[0].shape[0]
 
-        ind = np.random.randint(num_possible_positions)
+        ind = np_random.integers(0, num_possible_positions)
         box_position = possible_positions[0][ind], possible_positions[1][ind]
         room[box_position] = 2
 

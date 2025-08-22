@@ -8,7 +8,6 @@ from .render_utils import room_to_rgb, room_to_tiny_world_rgb
 import numpy as np
 import pygame
 import time
-import random
 
 
 class SokobanEnv(gym.Env):
@@ -60,8 +59,6 @@ class SokobanEnv(gym.Env):
             _ = self.reset()
 
     def seed(self, seed=int(time.time())):
-        np.random.seed(seed)
-        random.seed(seed)
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -228,11 +225,12 @@ class SokobanEnv(gym.Env):
                 dim=self.dim_room,
                 num_steps=self.num_gen_steps,
                 num_boxes=self.num_boxes,
-                second_player=second_player
+                second_player=second_player,
+                np_random=self.np_random
             )
         except (RuntimeError, RuntimeWarning) as e:
-            print("[SOKOBAN] Runtime Error/Warning: {}".format(e))
-            print("[SOKOBAN] Retry . . .")
+            # print("[SOKOBAN] Runtime Error/Warning: {}".format(e))
+            # print("[SOKOBAN] Retry . . .")
             return self.reset(second_player=second_player, render_mode=render_mode, seed=seed, options=options)
 
         self.player_position = np.argwhere(self.room_state == 5)[0]
