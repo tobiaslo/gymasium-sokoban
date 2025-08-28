@@ -38,7 +38,7 @@ def generate_room(
             p_change_directions, 
             num_steps
         )
-        room = place_boxes_and_player(room, num_boxes=num_boxes, second_player=second_player)
+        room = place_boxes_and_player(np_random, room, num_boxes=num_boxes, second_player=second_player)
 
         # Room fixed represents all not movable parts of the room
         room_structure = np.copy(room)
