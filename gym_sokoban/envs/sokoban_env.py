@@ -90,8 +90,8 @@ class SokobanEnv(gym.Env):
 
         # Convert the observation to RGB frame
 
-        observation = self.get_image(self.render_mode, 1)
-        # self.render()
+        # observation = self.get_image(self.render_mode, 1)
+        observation = self.render()
 
         info = {
             "action.name": ACTION_LOOKUP[action],
@@ -238,7 +238,8 @@ class SokobanEnv(gym.Env):
         self.reward_last = 0
         self.boxes_on_target = 0
 
-        starting_observation = self.get_image(self.render_mode, scale=1)
+        # starting_observation = self.get_image(self.render_mode, scale=1)
+        starting_observation = self.render()
         return starting_observation, {}
     
     def render(self, close=False, scale=1):
