@@ -65,7 +65,7 @@ for i_episode in range(n_rounds):
     observation, info = env.reset(seed=None, options= None)
 
     for t in range(n_steps):
-        env.render(scale=scale_image)
+        env.render()
 
         action = input('Select action: ')
         try:
@@ -78,11 +78,11 @@ for i_episode in range(n_rounds):
             print_available_actions()
             continue
 
-        observation, reward, done, truncated, info = env.step(action, observation_mode=observation_mode)
+        observation, reward, done, truncated, info = env.step(action)
         print(ACTION_LOOKUP[action], reward, done, info)
         print(len(observation), len(observation[0]), len(observation[0][0]))
         if save_images:
-            img = Image.fromarray(np.array(env.render(scale=scale_image)), 'RGB')
+            img = Image.fromarray(np.array(env.render()), 'RGB')
             img.save(os.path.join('images', 'observation_{}_{}.png'.format(i_episode, t)))
 
         if done:
