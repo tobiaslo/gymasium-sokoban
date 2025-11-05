@@ -20,7 +20,7 @@ class SokobanEnv(gym.Env):
         num_boxes=4,
         num_gen_steps=None,
         render_mode=None,
-        render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw'],
+        render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw', 'state'],
         render_fps = 10,
         reset=True
     ):
@@ -66,7 +66,7 @@ class SokobanEnv(gym.Env):
         # if isinstance(action, np.ndarray):
         #     action = action.astype(np.int64)
         assert action in ACTION_LOOKUP
-        assert observation_mode in ['rgb_array', 'tiny_rgb_array', 'raw']
+        assert observation_mode in ['rgb_array', 'tiny_rgb_array', 'raw', 'state']
 
         self.num_env_steps += 1
 
@@ -90,8 +90,8 @@ class SokobanEnv(gym.Env):
 
         # Convert the observation to RGB frame
 
-        observation = self.get_image(self.render_mode, 1)
-        # self.render()
+        # observation = self.get_image(self.render_mode, 1)
+        observation = self.render()
 
         info = {
             "action.name": ACTION_LOOKUP[action],
@@ -238,7 +238,8 @@ class SokobanEnv(gym.Env):
         self.reward_last = 0
         self.boxes_on_target = 0
 
-        starting_observation = self.get_image(self.render_mode, scale=1)
+        # starting_observation = self.get_image(self.render_mode, scale=1)
+        starting_observation = self.render()
         return starting_observation, {}
     
     def render(self, close=False, scale=1):
@@ -252,7 +253,7 @@ class SokobanEnv(gym.Env):
         mode = self.render_mode or "human"  # Default to "human" if no render_mode is set
 
         # Ensure the render_mode is valid
-        assert mode in ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw'], f"Invalid render_mode: {mode}"
+        assert mode in ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw', 'state'], f"Invalid render_mode: {mode}"
 
         # Get the image based on the render mode
         img = self.get_image(mode, scale)
@@ -287,7 +288,16 @@ class SokobanEnv(gym.Env):
             arr_boxes = ((self.room_state == 4) + (self.room_state == 3)).view(np.int8)
             arr_player = (self.room_state == 5).view(np.int8)
 
-            return arr_walls, arr_goals, arr_boxes, arr_player  # Return raw state info
+            # return arr_walls, arr_goals, arr_boxes, arr_player  # Return raw state info
+            room = self.room_state
+            if room is not None:
+                room[(room == 5) & (self.room_fixed == 2)] = 6
+            
+
+            return room
+        elif 'state' in mode:
+            return self.room_fixed, self.room_state
+            return self.room_fixed, self.room_state
         elif 'rgb_array' in mode:
             return img
 
@@ -338,4 +348,4 @@ CHANGE_COORDINATES = {
     3: (0, 1)
 }
 
-RENDERING_MODES = ['rgb_array', 'human', 'tiny_rgb_array', 'tiny_human', 'raw']
+RENDERING_MODES = ['rgb_array', 'human', 'tiny_rgb_array', 'tiny_human', 'raw', 'state']
