@@ -52,7 +52,8 @@ class SokobanEnv(gym.Env):
         self.max_steps = max_steps
         self.action_space = Discrete(len(ACTION_LOOKUP))
         screen_height, screen_width = (dim_room[0] * 16, dim_room[1] * 16)
-        self.observation_space = Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+        # self.observation_space = Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+        self.observation_space = Box(low=0, high=7, shape=(7, 7), dtype=np.uint8)
         
         if reset:
             # Initialize Room
@@ -91,7 +92,8 @@ class SokobanEnv(gym.Env):
         # Convert the observation to RGB frame
 
         # observation = self.get_image(self.render_mode, 1)
-        observation = self.render()
+        # observation = self.render()
+        observation = self.state_to_observation()
 
         info = {
             "action.name": ACTION_LOOKUP[action],
@@ -239,7 +241,7 @@ class SokobanEnv(gym.Env):
         self.boxes_on_target = 0
 
         # starting_observation = self.get_image(self.render_mode, scale=1)
-        starting_observation = self.render()
+        starting_observation = self.state_to_observation()
         return starting_observation, {}
     
     def render(self, close=False, scale=1):
@@ -292,8 +294,6 @@ class SokobanEnv(gym.Env):
             room = self.room_state
             if room is not None:
                 room[(room == 5) & (self.room_fixed == 2)] = 6
-            
-
             return room
         elif 'state' in mode:
             return self.room_fixed, self.room_state
@@ -326,6 +326,17 @@ class SokobanEnv(gym.Env):
 
     def get_action_meanings(self):
         return ACTION_LOOKUP
+
+    def state_to_observation(self):
+
+        # return arr_walls, arr_goals, arr_boxes, arr_player  # Return raw state info
+        room = self.room_state
+        if room is not None:
+            room[(room == 5) & (self.room_fixed == 2)] = 6
+
+        room = room.astype('uint8')
+        return room
+
 
 
 ACTION_LOOKUP = {
