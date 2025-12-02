@@ -240,8 +240,8 @@ class SokobanEnv(gym.Env):
         self.reward_last = 0
         self.boxes_on_target = 0
 
-        # starting_observation = self.get_image(self.render_mode, scale=1)
-        starting_observation = self.state_to_observation()
+        starting_observation = self.get_image(self.render_mode, scale=1)
+        # starting_observation = self.state_to_observation()
         return starting_observation, {}
     
     def render(self, close=False, scale=1):
