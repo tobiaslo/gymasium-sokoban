@@ -52,8 +52,8 @@ class SokobanEnv(gym.Env):
         self.max_steps = max_steps
         self.action_space = Discrete(len(ACTION_LOOKUP))
         screen_height, screen_width = (dim_room[0] * 16, dim_room[1] * 16)
-        # self.observation_space = Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
-        self.observation_space = Box(low=0, high=7, shape=(7, 7), dtype=np.uint8)
+        self.observation_space = Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+        # self.observation_space = Box(low=0, high=7, shape=(7, 7), dtype=np.uint8)
         
         if reset:
             # Initialize Room
@@ -92,8 +92,8 @@ class SokobanEnv(gym.Env):
         # Convert the observation to RGB frame
 
         # observation = self.get_image(self.render_mode, 1)
-        # observation = self.render()
-        observation = self.state_to_observation()
+        observation = self.render()
+        # observation = self.state_to_observation()
 
         info = {
             "action.name": ACTION_LOOKUP[action],
