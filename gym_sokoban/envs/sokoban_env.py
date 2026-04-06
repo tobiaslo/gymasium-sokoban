@@ -19,6 +19,7 @@ class SokobanEnv(gym.Env):
         max_steps=120,
         num_boxes=4,
         num_gen_steps=None,
+        random_num_gen_steps=False,
         render_mode=None,
         render_modes = ['human', 'rgb_array', 'tiny_human', 'tiny_rgb_array', 'raw', 'state'],
         render_fps = 10,
@@ -31,6 +32,7 @@ class SokobanEnv(gym.Env):
             self.num_gen_steps = int(1.7 * (dim_room[0] + dim_room[1]))
         else:
             self.num_gen_steps = num_gen_steps
+        self.random_num_gen_steps = random_num_gen_steps
 
         self.num_boxes = num_boxes
         self.boxes_on_target = 0
@@ -57,10 +59,12 @@ class SokobanEnv(gym.Env):
         
         if reset:
             # Initialize Room
+            self.seed()
             _ = self.reset()
 
     def seed(self, seed=int(time.time())):
         self.np_random, seed = seeding.np_random(seed)
+        # print(seed)
         return [seed]
 
     def step(self, action, observation_mode='rgb_array'):
@@ -219,13 +223,20 @@ class SokobanEnv(gym.Env):
     def _check_if_maxsteps(self):
         return (self.max_steps == self.num_env_steps)
 
-    def reset(self, second_player=False, render_mode='rgb_array', seed=None, options= None):
+    def reset(self, second_player=False, render_mode='rgb_array', seed=None, options=None, _num_steps=None):
         if seed is not None:
             self.seed(seed)
+        if _num_steps is None:
+            if self.random_num_gen_steps:
+                _num_steps = int(self.np_random.integers(self.num_boxes, self.num_gen_steps + 1)) if self.random_num_gen_steps else self.num_gen_steps
+            else:
+                _num_steps = self.num_gen_steps
+
         try:
+            print(_num_steps)
             self.room_fixed, self.room_state, self.box_mapping = generate_room(
                 dim=self.dim_room,
-                num_steps=self.num_gen_steps,
+                num_steps=_num_steps,
                 num_boxes=self.num_boxes,
                 second_player=second_player,
                 np_random=self.np_random
@@ -233,7 +244,7 @@ class SokobanEnv(gym.Env):
         except (RuntimeError, RuntimeWarning) as e:
             # print("[SOKOBAN] Runtime Error/Warning: {}".format(e))
             # print("[SOKOBAN] Retry . . .")
-            return self.reset(second_player=second_player, render_mode=render_mode, seed=seed, options=options)
+            return self.reset(second_player=second_player, render_mode=render_mode, seed=seed, options=options, _num_steps=_num_steps)
 
         self.player_position = np.argwhere(self.room_state == 5)[0]
         self.num_env_steps = 0
