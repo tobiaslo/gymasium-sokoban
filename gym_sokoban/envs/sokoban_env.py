@@ -227,10 +227,7 @@ class SokobanEnv(gym.Env):
         if seed is not None:
             self.seed(seed)
         if _num_steps is None:
-            if self.random_num_gen_steps:
-                _num_steps = int(self.np_random.integers(self.num_boxes, self.num_gen_steps + 1)) if self.random_num_gen_steps else self.num_gen_steps
-            else:
-                _num_steps = self.num_gen_steps
+            _num_steps = int(self.np_random.integers(self.num_boxes, self.num_gen_steps + 1)) if self.random_num_gen_steps else self.num_gen_steps
 
         try:
             print(_num_steps)
