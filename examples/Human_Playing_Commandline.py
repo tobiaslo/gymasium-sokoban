@@ -38,7 +38,7 @@ if save_images and not os.path.exists('images'):
         print('Error: Creating images target directory. ')
 
 ts = time.time()
-env = gym.make(env_name, render_mode=render_mode, num_gen_steps=100)
+env = gym.make(env_name, render_mode=render_mode)
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))
 
