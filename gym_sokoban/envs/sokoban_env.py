@@ -230,7 +230,7 @@ class SokobanEnv(gym.Env):
             _num_steps = int(self.np_random.integers(self.num_boxes, self.num_gen_steps + 1)) if self.random_num_gen_steps else self.num_gen_steps
 
         try:
-            # print(_num_steps)
+            print(_num_steps)
             self.room_fixed, self.room_state, self.box_mapping = generate_room(
                 dim=self.dim_room,
                 num_steps=_num_steps,

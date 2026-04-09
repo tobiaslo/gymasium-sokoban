@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
       name='gym_sokoban',
-      version='0.0.6',
+      version='0.0.5',
       author="Max-Philipp Schrader",
       description='Sokoban environment for OpenAI Gym',
       long_description=long_description,
