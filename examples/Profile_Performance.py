@@ -19,7 +19,8 @@ render_mode = args.render_mode
 
 cProfile.run('gym.make("{}")'.format(env_name), sort='time')
 
-env = gym.make(env_name, render_mode=render_mode)
+env = gym.make(env_name, render_mode=render_mode, num_gen_steps=10)
+env.reset(seed=0)
 
 start = time.time()
 for i in range(n):

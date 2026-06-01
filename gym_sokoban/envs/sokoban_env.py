@@ -231,9 +231,9 @@ class SokobanEnv(gym.Env):
                 np_random=self.np_random
             )
         except (RuntimeError, RuntimeWarning) as e:
-            # print("[SOKOBAN] Runtime Error/Warning: {}".format(e))
-            # print("[SOKOBAN] Retry . . .")
-            return self.reset(second_player=second_player, render_mode=render_mode, seed=seed, options=options)
+            print("[SOKOBAN] Runtime Error/Warning: {}".format(e))
+            print("[SOKOBAN] Retry . . .")
+            return self.reset(second_player=second_player, render_mode=render_mode, options=options)
 
         self.player_position = np.argwhere(self.room_state == 5)[0]
         self.num_env_steps = 0
